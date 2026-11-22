@@ -273,7 +273,7 @@ export function ReviewForm({ restaurantId }: { restaurantId: number }) {
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               placeholder="What did you order? How was it?"
-              className="mt-4 w-full resize-y rounded-2xl border border-line bg-paper/50 px-4 py-3 text-[15px] leading-7 text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/20"
+              className="mt-4 w-full resize-y rounded-2xl border border-line bg-paper/50 px-4 py-3 text-[15px] leading-7 text-ink outline-none transition-colors placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
             <p className="mt-2 text-xs text-muted">
               A sentence or two is plenty.

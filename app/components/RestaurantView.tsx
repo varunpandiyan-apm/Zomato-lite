@@ -42,7 +42,7 @@ function ScoreCard({ restaurant }: { restaurant: RestaurantResponse }) {
 
       <div className="relative">
         <div className="flex items-center justify-between">
-          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-paper/50">
+          <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
             Guest rating
           </p>
           <StarIcon filled className="h-4 w-4 text-accent" />
@@ -53,16 +53,16 @@ function ScoreCard({ restaurant }: { restaurant: RestaurantResponse }) {
           <p className="font-display text-[6.5rem] leading-[0.72] tracking-[-0.06em] tabular-nums">
             {restaurant.averageRating === null ? "—" : restaurant.averageRating}
           </p>
-          <span className="pb-2 text-xs text-paper/40">/ 5</span>
+          <span className="pb-2 text-xs text-paper/60">/ 5</span>
         </div>
 
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           {restaurant.averageRating === null ? (
-            <span className="text-xs text-paper/50">No ratings yet</span>
+            <span className="text-xs text-paper/70">No ratings yet</span>
           ) : (
             <RatingStars rating={restaurant.averageRating} size="large" />
           )}
-          <span className="text-[10px] uppercase tracking-[0.14em] text-paper/50">
+          <span className="text-[10px] uppercase tracking-[0.14em] text-paper/70">
             {restaurant.totalReviews}{" "}
             {restaurant.totalReviews === 1 ? "note" : "notes"}
           </span>
@@ -70,7 +70,7 @@ function ScoreCard({ restaurant }: { restaurant: RestaurantResponse }) {
 
         <div className="mt-7 grid grid-cols-2 gap-4 border-t border-paper/20 pt-5">
           <div>
-            <p className="text-[10px] uppercase tracking-[0.16em] text-paper/40">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-paper/60">
               Reviews
             </p>
             <p className="mt-1 font-display text-3xl tabular-nums">
@@ -78,7 +78,7 @@ function ScoreCard({ restaurant }: { restaurant: RestaurantResponse }) {
             </p>
           </div>
           <div>
-            <p className="text-[10px] uppercase tracking-[0.16em] text-paper/40">
+            <p className="text-[10px] uppercase tracking-[0.16em] text-paper/60">
               Latest score
             </p>
             <p className="mt-1 font-display text-3xl tabular-nums">
@@ -87,7 +87,7 @@ function ScoreCard({ restaurant }: { restaurant: RestaurantResponse }) {
           </div>
         </div>
 
-        <p className="mt-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-paper/40">
+        <p className="mt-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.14em] text-paper/60">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           Computed live from the reviews
         </p>
