@@ -1,24 +1,44 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import {
+  ArrowUpRightIcon,
+  ClockIcon,
+  InfoIcon,
+  PinIcon,
+  UtensilsIcon,
+} from "@/app/components/Icons";
+import { RatingStars } from "@/app/components/RatingStars";
+import { SiteFooter } from "@/app/components/SiteFooter";
+import { SiteHeader } from "@/app/components/SiteHeader";
 import { StarIcon } from "@/app/components/StarIcon";
+import type { RestaurantResponse } from "@/lib/types";
+
+const RATING_LABELS = [
+  "",
+  "Not for me",
+  "It was okay",
+  "Solid",
+  "Really good",
+  "Unmissable",
+];
 
 export function ReviewForm({ restaurantId }: { restaurantId: number }) {
   const router = useRouter();
-  const [restaurantName, setRestaurantName] = useState("");
+  const [restaurant, setRestaurant] = useState<RestaurantResponse | null>(null);
+  const [loadingRestaurant, setLoadingRestaurant] = useState(true);
+  const [loadError, setLoadError] = useState("");
   const [rating, setRating] = useState<number | null>(null);
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
-  const [loadingName, setLoadingName] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
 
-    async function loadRestaurantName() {
+    async function loadRestaurant() {
       try {
         const response = await fetch(`/api/restaurants/${restaurantId}`, {
           cache: "no-store",
@@ -27,27 +47,28 @@ export function ReviewForm({ restaurantId }: { restaurantId: number }) {
         const data = await response.json();
 
         if (!response.ok) {
-          setError(data.error ?? "Could not load this restaurant.");
+          setLoadError(data.error ?? "Could not load this restaurant.");
           return;
         }
 
-        setRestaurantName(data.name);
+        setRestaurant(data);
       } catch (requestError) {
         if ((requestError as Error).name !== "AbortError") {
-          setError("Could not reach the server. Please try again.");
+          setLoadError("Could not reach the server. Please try again.");
         }
       } finally {
         if (!controller.signal.aborted) {
-          setLoadingName(false);
+          setLoadingRestaurant(false);
         }
       }
     }
 
-    loadRestaurantName();
+    loadRestaurant();
 
     return () => controller.abort();
   }, [restaurantId]);
 
+  const restaurantName = restaurant?.name ?? "Ludhiana Burrito";
   const canSubmit =
     rating !== null && comment.trim().length > 0 && !submitting;
 
@@ -91,37 +112,99 @@ export function ReviewForm({ restaurantId }: { restaurantId: number }) {
   const activeRating = hoveredRating ?? rating;
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-[560px] px-6 py-10 sm:py-16">
-      <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-muted">
-        Zomato Lite
-      </p>
+    <main className="flex min-h-screen flex-col">
+      <SiteHeader restaurantId={restaurantId} action="back" />
 
-      <div className="mt-12">
-        <Link
-          href={`/restaurant/${restaurantId}`}
-          className="text-sm text-muted underline decoration-line underline-offset-4 transition-colors hover:text-ink hover:decoration-ink"
-        >
-          Back to restaurant
-        </Link>
-
-        <header className="mt-8 border-b border-line pb-8">
-          <p className="text-sm text-muted">Write a review</p>
-          <h1 className="mt-2 text-[2.25rem] font-medium leading-[1.08] tracking-[-0.045em] sm:text-[2.75rem]">
-            {loadingName ? "Ludhiana Burrito" : restaurantName}
-          </h1>
-        </header>
-
-        <form onSubmit={handleSubmit} className="mt-9">
-          <fieldset>
-            <legend className="text-sm font-medium">Your rating</legend>
-            <p className="mt-1 text-sm text-muted">
-              {rating === null
-                ? "Choose 1 to 5 stars."
-                : `${rating} of 5 selected.`}
+      <div className="mx-auto w-full max-w-[900px] flex-1 px-6 pb-16 sm:px-8">
+        <section className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+          <div>
+            <p className="eyebrow flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+              Guest note / 01
             </p>
+            <h1 className="mt-4 max-w-[560px] text-balance font-display text-[4rem] leading-[0.88] tracking-[-0.04em] sm:text-[5rem]">
+              Write a review.
+            </h1>
+            <p className="mt-5 max-w-[440px] text-sm leading-6 text-muted">
+              For <span className="font-medium text-ink">{restaurantName}</span>{" "}
+              in {restaurant?.area ?? "Sector 32"}. Tell the next guest what to
+              order, how the service felt, and whether you would go back.
+            </p>
+          </div>
+
+          <aside className="rounded-[2rem] border border-line bg-surface p-6 lg:sticky lg:top-6">
+            <p className="eyebrow">You&apos;re reviewing</p>
+            <h2 className="mt-3 font-display text-[2rem] leading-tight tracking-[-0.02em]">
+              {restaurantName}
+            </h2>
+
+            {restaurant ? (
+              <>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="meta-chip">
+                    <UtensilsIcon className="h-3.5 w-3.5" />
+                    {restaurant.cuisine}
+                  </span>
+                  <span className="meta-chip">
+                    <PinIcon className="h-3.5 w-3.5" />
+                    {restaurant.area}
+                  </span>
+                </div>
+
+                <div className="mt-6 border-t border-line pt-5">
+                  <div className="flex items-end gap-2">
+                    {/* This is printed from the API; it is not calculated here. */}
+                    <span className="font-display text-5xl leading-none tabular-nums">
+                      {restaurant.averageRating ?? "—"}
+                    </span>
+                    <span className="pb-1 text-[10px] text-muted">/ 5</span>
+                  </div>
+                  {restaurant.averageRating === null ? (
+                    <p className="mt-3 text-xs text-muted">No ratings yet</p>
+                  ) : (
+                    <RatingStars
+                      rating={restaurant.averageRating}
+                      className="mt-3"
+                    />
+                  )}
+                  <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-muted">
+                    {restaurant.totalReviews}{" "}
+                    {restaurant.totalReviews === 1 ? "guest note" : "guest notes"}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <p className="mt-4 text-xs leading-5 text-muted">
+                {loadingRestaurant
+                  ? "Loading restaurant details..."
+                  : loadError || "Restaurant details are unavailable."}
+              </p>
+            )}
+          </aside>
+        </section>
+
+        <form
+          onSubmit={handleSubmit}
+          aria-busy={submitting}
+          className="mt-10 rounded-[2rem] border border-line bg-surface p-6 sm:p-8"
+        >
+          <fieldset>
+            <legend className="sr-only">Your rating</legend>
+
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="eyebrow">Score / 01</p>
+                <h2 className="mt-2 font-display text-3xl tracking-[-0.02em]">
+                  How was the table?
+                </h2>
+              </div>
+              <span className="rounded-full border border-line px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-muted tabular-nums">
+                {rating === null ? "Not rated" : `${rating} / 5`}
+              </span>
+            </div>
 
             <div
-              className="mt-4 flex items-center gap-1"
+              className="mt-6 grid grid-cols-5 gap-2"
               onMouseLeave={() => setHoveredRating(null)}
             >
               {[1, 2, 3, 4, 5].map((value) => {
@@ -138,21 +221,51 @@ export function ReviewForm({ restaurantId }: { restaurantId: number }) {
                     onFocus={() => setHoveredRating(value)}
                     onBlur={() => setHoveredRating(null)}
                     onClick={() => setRating(value)}
-                    className={`rounded-md p-1 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                      isActive ? "text-accent" : "text-line hover:text-accent"
+                    className={`group flex flex-col items-center gap-2 rounded-2xl border px-1 py-3 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                      isActive
+                        ? "border-accent bg-accent-soft/60 text-accent"
+                        : "border-line bg-paper/50 text-muted hover:-translate-y-0.5 hover:border-accent/50 hover:text-accent"
                     }`}
                   >
-                    <StarIcon filled={isActive} className="h-10 w-10" />
+                    <StarIcon
+                      filled={isActive}
+                      className="h-8 w-8 sm:h-9 sm:w-9"
+                    />
+                    <span className="text-[10px] font-medium tabular-nums">
+                      {value}
+                    </span>
                   </button>
                 );
               })}
             </div>
+
+            <p
+              className="mt-4 text-sm text-muted"
+              aria-live="polite"
+            >
+              {rating === null
+                ? "Choose a score from 1 to 5."
+                : `${RATING_LABELS[rating]} — ${rating} out of 5`}
+            </p>
           </fieldset>
 
-          <div className="mt-8">
-            <label htmlFor="comment" className="text-sm font-medium">
-              Your review
-            </label>
+          <div className="my-8 h-px bg-line" />
+
+          <div>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow">Note / 02</p>
+                <label
+                  htmlFor="comment"
+                  className="mt-2 block font-display text-3xl tracking-[-0.02em]"
+                >
+                  Your note
+                </label>
+              </div>
+              <span className="text-[10px] uppercase tracking-[0.14em] text-muted">
+                Plain text
+              </span>
+            </div>
             <textarea
               id="comment"
               name="comment"
@@ -160,36 +273,41 @@ export function ReviewForm({ restaurantId }: { restaurantId: number }) {
               value={comment}
               onChange={(event) => setComment(event.target.value)}
               placeholder="What did you order? How was it?"
-              className="mt-3 w-full resize-y rounded-xl border border-line bg-surface px-4 py-3 text-[15px] leading-7 text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/15"
+              className="mt-4 w-full resize-y rounded-2xl border border-line bg-paper/50 px-4 py-3 text-[15px] leading-7 text-ink outline-none transition-colors placeholder:text-muted/60 focus:border-accent focus:ring-2 focus:ring-accent/20"
             />
+            <p className="mt-2 text-xs text-muted">
+              A sentence or two is plenty.
+            </p>
           </div>
 
           {error && (
-            <p
+            <div
               role="alert"
-              className="mt-5 rounded-lg border border-accent/25 bg-accent/5 px-4 py-3 text-sm leading-6 text-accent"
+              className="mt-5 flex gap-3 rounded-2xl border border-accent/25 bg-accent-soft/50 p-4 text-sm leading-6 text-accent"
             >
-              {error}
-            </p>
+              <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>{error}</p>
+            </div>
           )}
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="mt-8 flex flex-col gap-5 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="flex items-center gap-2 text-xs leading-5 text-muted">
+              <ClockIcon className="h-3.5 w-3.5 shrink-0 text-accent" />
+              Your note appears at the top of the guestbook.
+            </p>
             <button
               type="submit"
               disabled={!canSubmit}
-              className="inline-flex min-h-12 items-center justify-center rounded-full bg-accent px-7 text-sm font-medium text-white transition-colors hover:bg-accent-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 text-[10px] font-medium uppercase tracking-[0.16em] text-white transition-colors hover:bg-accent-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
             >
               {submitting ? "Submitting..." : "Submit review"}
+              <ArrowUpRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
-            <Link
-              href={`/restaurant/${restaurantId}`}
-              className="inline-flex min-h-12 items-center justify-center px-4 text-sm text-muted transition-colors hover:text-ink"
-            >
-              Cancel
-            </Link>
           </div>
         </form>
       </div>
+
+      <SiteFooter />
     </main>
   );
 }
