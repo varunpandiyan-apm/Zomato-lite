@@ -11,25 +11,35 @@ export function RatingStars({
 }) {
   const iconSize = {
     small: "h-4 w-4",
-    large: "h-6 w-6",
-    xl: "h-8 w-8",
+    large: "h-5 w-5",
+    xl: "h-7 w-7",
   }[size];
 
-  const gap = size === "small" ? "gap-1" : "gap-1.5";
+  const clampedRating = Math.max(0, Math.min(5, rating));
+  const fillWidth = `${(clampedRating / 5) * 100}%`;
 
   return (
     <div
-      className={`flex items-center text-accent ${gap} ${className}`}
+      className={`relative inline-flex ${className}`}
       role="img"
       aria-label={`${rating} out of 5 stars`}
     >
-      {[1, 2, 3, 4, 5].map((value) => (
-        <StarIcon
-          key={value}
-          filled={value <= rating}
-          className={`${iconSize} ${value <= rating ? "" : "text-line"}`}
-        />
-      ))}
+      <div className="flex items-center gap-0.5 text-line">
+        {[1, 2, 3, 4, 5].map((value) => (
+          <StarIcon key={value} filled className={iconSize} />
+        ))}
+      </div>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-y-0 left-0 overflow-hidden"
+        style={{ width: fillWidth }}
+      >
+        <div className="flex items-center gap-0.5 text-star">
+          {[1, 2, 3, 4, 5].map((value) => (
+            <StarIcon key={value} filled className={iconSize} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

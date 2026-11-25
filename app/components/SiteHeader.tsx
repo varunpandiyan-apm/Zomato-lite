@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ArrowLeftIcon,
-  ArrowUpRightIcon,
   PenIcon,
   PinIcon,
 } from "@/app/components/Icons";
@@ -14,44 +13,51 @@ export function SiteHeader({
   action: "write" | "back";
 }) {
   return (
-    <header className="border-b border-line">
-      <div className="mx-auto flex w-full max-w-[900px] items-center justify-between gap-4 px-6 py-5 sm:px-8">
+    <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
+      <div className="mx-auto flex h-16 w-full max-w-[1100px] items-center justify-between gap-3 px-4 sm:px-6">
         <Link
           href={`/restaurant/${restaurantId}`}
-          className="group flex items-center gap-3"
+          className="flex shrink-0 items-center gap-2"
           aria-label="Zomato Lite restaurant page"
         >
-          <span className="grid h-9 w-9 place-items-center rounded-full border border-ink/20 bg-surface font-display text-xl leading-none transition-colors group-hover:border-accent group-hover:text-accent">
-            Z
+          <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-zred shadow-sm">
+            <span className="text-[22px] font-extrabold leading-none text-white">
+              z
+            </span>
           </span>
-          <span className="hidden text-[10px] font-medium uppercase tracking-[0.24em] text-ink sm:inline">
-            Zomato Lite
+          <span className="text-[22px] font-extrabold leading-none tracking-[-0.04em] text-zred">
+            zomato
+          </span>
+          <span className="mb-0.5 self-center rounded-sm bg-ink px-1 py-0.5 text-[8px] font-bold uppercase tracking-[0.12em] text-white">
+            lite
           </span>
         </Link>
 
-        <span className="hidden items-center gap-2 text-[10px] uppercase tracking-[0.18em] text-muted md:flex">
-          <PinIcon className="h-3.5 w-3.5 text-accent" />
-          Sector 32
-        </span>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="hidden items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-muted md:inline-flex">
+            <PinIcon className="h-3.5 w-3.5 text-zred" />
+            Sector 32, Ludhiana
+          </span>
 
-        {action === "write" ? (
-          <Link
-            href={`/review/${restaurantId}`}
-            className="group inline-flex min-h-10 items-center gap-2 rounded-full border border-line bg-surface px-4 text-[10px] font-medium uppercase tracking-[0.16em] text-ink transition-colors hover:border-accent hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-          >
-            <PenIcon className="h-3.5 w-3.5" />
-            Write a review
-            <ArrowUpRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </Link>
-        ) : (
-          <Link
-            href={`/restaurant/${restaurantId}`}
-            className="group inline-flex min-h-10 items-center gap-2 text-[10px] font-medium uppercase tracking-[0.16em] text-muted transition-colors hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-          >
-            <ArrowLeftIcon className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-0.5" />
-            Back to restaurant
-          </Link>
-        )}
+          {action === "write" ? (
+            <Link
+              href={`/review/${restaurantId}`}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg bg-zred px-3.5 text-sm font-semibold text-white transition-colors hover:bg-zred-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zred sm:px-4"
+            >
+              <PenIcon className="h-3.5 w-3.5" />
+              Add review
+            </Link>
+          ) : (
+            <Link
+              href={`/restaurant/${restaurantId}`}
+              className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-line px-3 text-sm font-semibold text-ink transition-colors hover:border-zred hover:text-zred focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zred sm:px-4"
+            >
+              <ArrowLeftIcon className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Back to restaurant</span>
+              <span className="sm:hidden">Back</span>
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );

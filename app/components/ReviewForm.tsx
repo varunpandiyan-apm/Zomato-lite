@@ -1,14 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { BurritoMark } from "@/app/components/BurritoMark";
 import {
-  ArrowUpRightIcon,
-  ClockIcon,
+  ArrowLeftIcon,
+  ChevronRightIcon,
   InfoIcon,
   PinIcon,
   UtensilsIcon,
 } from "@/app/components/Icons";
+import { RatingBadge } from "@/app/components/RatingBadge";
 import { RatingStars } from "@/app/components/RatingStars";
 import { SiteFooter } from "@/app/components/SiteFooter";
 import { SiteHeader } from "@/app/components/SiteHeader";
@@ -17,12 +20,18 @@ import type { RestaurantResponse } from "@/lib/types";
 
 const RATING_LABELS = [
   "",
-  "Not for me",
-  "It was okay",
-  "Solid",
-  "Really good",
-  "Unmissable",
+  "Very poor",
+  "Poor",
+  "Average",
+  "Good",
+  "Excellent",
 ];
+
+const dotPattern = {
+  backgroundImage:
+    "radial-gradient(circle at 1px 1px, rgba(255,255,255,0.22) 1px, transparent 0)",
+  backgroundSize: "20px 20px",
+} as const;
 
 export function ReviewForm({ restaurantId }: { restaurantId: number }) {
   const router = useRouter();
@@ -112,199 +121,228 @@ export function ReviewForm({ restaurantId }: { restaurantId: number }) {
   const activeRating = hoveredRating ?? rating;
 
   return (
-    <main className="flex min-h-screen flex-col">
+    <main className="flex min-h-screen flex-col bg-white">
       <SiteHeader restaurantId={restaurantId} action="back" />
 
-      <div className="mx-auto w-full max-w-[900px] flex-1 px-6 pb-16 sm:px-8">
-        <section className="mt-12 grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
-          <div>
-            <p className="eyebrow flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-              Guest note / 01
-            </p>
-            <h1 className="mt-4 max-w-[560px] text-balance font-display text-[4rem] leading-[0.88] tracking-[-0.04em] sm:text-[5rem]">
-              Write a review.
-            </h1>
-            <p className="mt-5 max-w-[440px] text-sm leading-6 text-muted">
-              For <span className="font-medium text-ink">{restaurantName}</span>{" "}
-              in {restaurant?.area ?? "Sector 32"}. Tell the next guest what to
-              order, how the service felt, and whether you would go back.
-            </p>
-          </div>
-
-          <aside className="rounded-[2rem] border border-line bg-surface p-6 lg:sticky lg:top-6">
-            <p className="eyebrow">You&apos;re reviewing</p>
-            <h2 className="mt-3 font-display text-[2rem] leading-tight tracking-[-0.02em]">
-              {restaurantName}
-            </h2>
-
-            {restaurant ? (
-              <>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="meta-chip">
-                    <UtensilsIcon className="h-3.5 w-3.5" />
-                    {restaurant.cuisine}
-                  </span>
-                  <span className="meta-chip">
-                    <PinIcon className="h-3.5 w-3.5" />
-                    {restaurant.area}
-                  </span>
-                </div>
-
-                <div className="mt-6 border-t border-line pt-5">
-                  <div className="flex items-end gap-2">
-                    {/* This is printed from the API; it is not calculated here. */}
-                    <span className="font-display text-5xl leading-none tabular-nums">
-                      {restaurant.averageRating ?? "—"}
-                    </span>
-                    <span className="pb-1 text-[10px] text-muted">/ 5</span>
-                  </div>
-                  {restaurant.averageRating === null ? (
-                    <p className="mt-3 text-xs text-muted">No ratings yet</p>
-                  ) : (
-                    <RatingStars
-                      rating={restaurant.averageRating}
-                      className="mt-3"
-                    />
-                  )}
-                  <p className="mt-3 text-[10px] uppercase tracking-[0.14em] text-muted">
-                    {restaurant.totalReviews}{" "}
-                    {restaurant.totalReviews === 1 ? "guest note" : "guest notes"}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <p className="mt-4 text-xs leading-5 text-muted">
-                {loadingRestaurant
-                  ? "Loading restaurant details..."
-                  : loadError || "Restaurant details are unavailable."}
-              </p>
-            )}
-          </aside>
-        </section>
-
-        <form
-          onSubmit={handleSubmit}
-          aria-busy={submitting}
-          className="mt-10 rounded-[2rem] border border-line bg-surface p-6 sm:p-8"
+      <div className="border-b border-line bg-surface">
+        <nav
+          aria-label="Breadcrumb"
+          className="mx-auto flex w-full max-w-[1000px] items-center gap-1.5 px-4 py-3 text-xs font-medium text-muted sm:px-6"
         >
-          <fieldset>
-            <legend className="sr-only">Your rating</legend>
+          <Link
+            href={`/restaurant/${restaurantId}`}
+            className="transition-colors hover:text-zred"
+          >
+            {restaurantName}
+          </Link>
+          <ChevronRightIcon className="h-3 w-3" />
+          <span className="text-ink">Write a review</span>
+        </nav>
+      </div>
 
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <p className="eyebrow">Score / 01</p>
-                <h2 className="mt-2 font-display text-3xl tracking-[-0.02em]">
-                  How was the table?
-                </h2>
-              </div>
-              <span className="rounded-full border border-line px-3 py-1.5 text-[10px] uppercase tracking-[0.16em] text-muted tabular-nums">
-                {rating === null ? "Not rated" : `${rating} / 5`}
-              </span>
-            </div>
+      <div className="mx-auto w-full max-w-[1000px] flex-1 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-8">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
+              Write a review
+            </h1>
+            <p className="mt-1.5 text-sm leading-6 text-muted">
+              Share your dining experience at{" "}
+              <span className="font-semibold text-ink">{restaurantName}</span>.
+            </p>
 
-            <div
-              className="mt-6 grid grid-cols-5 gap-2"
-              onMouseLeave={() => setHoveredRating(null)}
+            <form
+              onSubmit={handleSubmit}
+              aria-busy={submitting}
+              className="mt-6 rounded-xl border border-line bg-white"
             >
-              {[1, 2, 3, 4, 5].map((value) => {
-                const isActive =
-                  activeRating !== null && value <= activeRating;
+              <div className="border-b border-line p-5 sm:p-6">
+                <fieldset>
+                  <legend className="text-base font-bold">Your rating</legend>
+                  <p className="mt-1 text-xs text-muted">
+                    How was your overall experience?
+                  </p>
 
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-label={`${value} ${value === 1 ? "star" : "stars"}`}
-                    aria-pressed={rating === value}
-                    onMouseEnter={() => setHoveredRating(value)}
-                    onFocus={() => setHoveredRating(value)}
-                    onBlur={() => setHoveredRating(null)}
-                    onClick={() => setRating(value)}
-                    className={`group flex flex-col items-center gap-2 rounded-2xl border px-1 py-3 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                      isActive
-                        ? "border-accent bg-accent-soft/60 text-accent"
-                        : "border-line bg-paper/50 text-muted hover:-translate-y-0.5 hover:border-accent/50 hover:text-accent"
-                    }`}
+                  <div
+                    className="mt-4 flex items-center gap-1 sm:gap-2"
+                    onMouseLeave={() => setHoveredRating(null)}
                   >
-                    <StarIcon
-                      filled={isActive}
-                      className="h-8 w-8 sm:h-9 sm:w-9"
-                    />
-                    <span className="text-[10px] font-medium tabular-nums">
-                      {value}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    {[1, 2, 3, 4, 5].map((value) => {
+                      const isActive =
+                        activeRating !== null && value <= activeRating;
 
-            <p
-              className="mt-4 text-sm text-muted"
-              aria-live="polite"
-            >
-              {rating === null
-                ? "Choose a score from 1 to 5."
-                : `${RATING_LABELS[rating]} — ${rating} out of 5`}
-            </p>
-          </fieldset>
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          aria-label={`${value} ${
+                            value === 1 ? "star" : "stars"
+                          } — ${RATING_LABELS[value]}`}
+                          aria-pressed={rating === value}
+                          onMouseEnter={() => setHoveredRating(value)}
+                          onFocus={() => setHoveredRating(value)}
+                          onBlur={() => setHoveredRating(null)}
+                          onClick={() => setRating(value)}
+                          className="group flex flex-col items-center gap-1 rounded-lg p-1.5 transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zred"
+                        >
+                          <StarIcon
+                            filled={isActive}
+                            className={`h-9 w-9 transition-colors sm:h-11 sm:w-11 ${
+                              isActive
+                                ? "text-star"
+                                : "text-line group-hover:text-star/70"
+                            }`}
+                          />
+                          <span
+                            className={`text-[10px] font-semibold tabular-nums ${
+                              isActive ? "text-ink" : "text-muted"
+                            }`}
+                          >
+                            {value}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
-          <div className="my-8 h-px bg-line" />
-
-          <div>
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="eyebrow">Note / 02</p>
-                <label
-                  htmlFor="comment"
-                  className="mt-2 block font-display text-3xl tracking-[-0.02em]"
-                >
-                  Your note
-                </label>
+                  <p
+                    className="mt-3 text-sm font-medium text-ink"
+                    aria-live="polite"
+                  >
+                    {rating === null
+                      ? "Select a rating from 1 to 5."
+                      : `${RATING_LABELS[rating]} · ${rating} of 5`}
+                  </p>
+                </fieldset>
               </div>
-              <span className="text-[10px] uppercase tracking-[0.14em] text-muted">
-                Plain text
-              </span>
-            </div>
-            <textarea
-              id="comment"
-              name="comment"
-              rows={5}
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-              placeholder="What did you order? How was it?"
-              className="mt-4 w-full resize-y rounded-2xl border border-line bg-paper/50 px-4 py-3 text-[15px] leading-7 text-ink outline-none transition-colors placeholder:text-muted/70 focus:border-accent focus:ring-2 focus:ring-accent/20"
-            />
-            <p className="mt-2 text-xs text-muted">
-              A sentence or two is plenty.
-            </p>
+
+              <div className="p-5 sm:p-6">
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <label htmlFor="comment" className="text-base font-bold">
+                    Your review
+                  </label>
+                  <span className="text-xs text-muted">
+                    {comment.length}{" "}
+                    {comment.length === 1 ? "character" : "characters"}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted">
+                  Tell us what stood out — the food, the service, or the vibe.
+                </p>
+                <textarea
+                  id="comment"
+                  name="comment"
+                  rows={5}
+                  value={comment}
+                  onChange={(event) => setComment(event.target.value)}
+                  placeholder="What did you order? How was it?"
+                  className="mt-3 w-full resize-y rounded-lg border border-line bg-white px-3.5 py-3 text-sm leading-6 text-ink outline-none transition-colors placeholder:text-muted/70 focus:border-zred focus:ring-2 focus:ring-zred/20"
+                />
+
+                {error && (
+                  <div
+                    role="alert"
+                    className="mt-4 flex gap-2.5 rounded-lg border border-zred/20 bg-zred-soft p-3.5 text-sm leading-6 text-zred-dark"
+                  >
+                    <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
+                    <p>{error}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex flex-col-reverse gap-3 border-t border-line p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                <p className="flex items-center gap-1.5 text-xs text-muted">
+                  <InfoIcon className="h-3.5 w-3.5 shrink-0 text-zred" />
+                  Your review will be visible to everyone.
+                </p>
+                <button
+                  type="submit"
+                  disabled={!canSubmit}
+                  className="inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-lg bg-zred px-6 text-sm font-semibold text-white transition-colors hover:bg-zred-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zred disabled:cursor-not-allowed disabled:bg-line disabled:text-muted sm:w-auto"
+                >
+                  {submitting ? "Submitting…" : "Submit review"}
+                </button>
+              </div>
+            </form>
           </div>
 
-          {error && (
-            <div
-              role="alert"
-              className="mt-5 flex gap-3 rounded-2xl border border-accent/25 bg-accent-soft/50 p-4 text-sm leading-6 text-accent"
-            >
-              <InfoIcon className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>{error}</p>
-            </div>
-          )}
+          <aside className="lg:sticky lg:top-20">
+            <div className="overflow-hidden rounded-xl border border-line bg-white">
+              <div className="relative h-28 overflow-hidden bg-gradient-to-br from-zred to-zred-dark">
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0"
+                  style={dotPattern}
+                />
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -right-6 -top-10 text-white/25"
+                >
+                  <BurritoMark className="h-40 w-48" />
+                </div>
+                <span className="absolute bottom-3 left-4 rounded bg-white/20 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-white backdrop-blur-sm">
+                  You&apos;re reviewing
+                </span>
+              </div>
 
-          <div className="mt-8 flex flex-col gap-5 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="flex items-center gap-2 text-xs leading-5 text-muted">
-              <ClockIcon className="h-3.5 w-3.5 shrink-0 text-accent" />
-              Your note appears at the top of the guestbook.
-            </p>
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent px-7 text-[10px] font-medium uppercase tracking-[0.16em] text-white transition-colors hover:bg-accent-dark focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
-            >
-              {submitting ? "Submitting..." : "Submit review"}
-              <ArrowUpRightIcon className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </button>
-          </div>
-        </form>
+              <div className="p-5">
+                <h2 className="text-lg font-bold leading-tight">
+                  {restaurantName}
+                </h2>
+
+                {restaurant ? (
+                  <>
+                    <p className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+                      <span className="flex items-center gap-1">
+                        <UtensilsIcon className="h-3.5 w-3.5 text-zred" />
+                        {restaurant.cuisine}
+                      </span>
+                      <span className="h-1 w-1 rounded-full bg-line" />
+                      <span className="flex items-center gap-1">
+                        <PinIcon className="h-3.5 w-3.5 text-zred" />
+                        {restaurant.area}, Ludhiana
+                      </span>
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-3 border-t border-line pt-4">
+                      {restaurant.averageRating === null ? (
+                        <span className="rounded-md border border-line px-2 py-1 text-xs font-semibold text-muted">
+                          New
+                        </span>
+                      ) : (
+                        <RatingBadge rating={restaurant.averageRating} />
+                      )}
+                      <div>
+                        <RatingStars
+                          rating={restaurant.averageRating ?? 0}
+                          size="large"
+                        />
+                        <p className="mt-1 text-xs text-muted">
+                          {restaurant.totalReviews}{" "}
+                          {restaurant.totalReviews === 1 ? "review" : "reviews"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link
+                      href={`/restaurant/${restaurantId}`}
+                      className="mt-4 flex min-h-10 w-full items-center justify-center gap-1.5 rounded-lg border border-line px-4 text-sm font-semibold text-ink transition-colors hover:border-zred hover:text-zred focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-zred"
+                    >
+                      <ArrowLeftIcon className="h-4 w-4" />
+                      Back to restaurant
+                    </Link>
+                  </>
+                ) : (
+                  <p className="mt-3 rounded-lg bg-surface p-3 text-xs leading-5 text-muted">
+                    {loadingRestaurant
+                      ? "Loading restaurant details…"
+                      : loadError || "Restaurant details are unavailable."}
+                  </p>
+                )}
+              </div>
+            </div>
+          </aside>
+        </div>
       </div>
 
       <SiteFooter />

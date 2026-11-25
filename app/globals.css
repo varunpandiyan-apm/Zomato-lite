@@ -1,16 +1,18 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-paper: #f4efe6;
-  --color-surface: #fbf8f2;
-  --color-ink: #1d1c19;
-  --color-muted: #6b655b;
-  --color-line: #ded6c9;
-  --color-accent: #a84a2e;
-  --color-accent-dark: #85371f;
-  --color-accent-soft: #f2e2d9;
+  --color-paper: #ffffff;
+  --color-surface: #f8f8f8;
+  --color-ink: #1c1c1c;
+  --color-muted: #696969;
+  --color-line: #e8e8e8;
+  --color-zred: #e23744;
+  --color-zred-dark: #c81e2d;
+  --color-zred-soft: #fdecee;
+  --color-star: #f5b942;
+  --color-green: #1c7a33;
+  --color-gold: #b35a12;
   --font-sans: var(--font-geist-sans);
-  --font-display: var(--font-instrument-serif);
 }
 
 :root {
@@ -29,7 +31,7 @@ body {
 }
 
 ::selection {
-  background: #e7c9bc;
+  background: #ffd6da;
   color: var(--color-ink);
 }
 
@@ -37,36 +39,6 @@ button,
 a,
 textarea {
   -webkit-tap-highlight-color: transparent;
-}
-
-.eyebrow {
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.2em;
-  line-height: 1.4;
-  text-transform: uppercase;
-  color: var(--color-muted);
-}
-
-.meta-chip {
-  display: inline-flex;
-  min-height: 2rem;
-  align-items: center;
-  gap: 0.5rem;
-  border: 1px solid var(--color-line);
-  border-radius: 999px;
-  background: var(--color-surface);
-  padding: 0.35rem 0.75rem;
-  font-size: 0.625rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--color-ink);
-}
-
-.meta-chip svg {
-  color: var(--color-accent);
 }
 
 @media (prefers-reduced-motion: reduce) {

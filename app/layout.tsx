@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Instrument_Serif } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,15 +7,9 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
-});
-
 export const metadata: Metadata = {
   title: "Zomato Lite — Ludhiana Burrito",
-  description: "Guest notes and a live guest rating for Ludhiana Burrito.",
+  description: "Reviews and ratings for Ludhiana Burrito in Sector 32.",
 };
 
 export default function RootLayout({
@@ -26,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${instrumentSerif.variable} min-h-screen font-sans antialiased`}
+        className={`${geistSans.variable} min-h-screen font-sans antialiased`}
       >
         {children}
       </body>
